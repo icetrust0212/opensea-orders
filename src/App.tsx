@@ -5,6 +5,7 @@ import { useMoralis } from "react-moralis";
 import { Button } from '@mui/material';
 import { GridCellEditCommitParams, MuiBaseEvent, MuiEvent } from '@mui/x-data-grid';
 import { BuyOrderInterface } from './interfaces/buyOrderInterface';
+import config from './config/config';
 function App() {
 
   const {
@@ -27,7 +28,7 @@ function App() {
 
   const getOrders = async () => {
     const res = await Moralis.Plugins.opensea.getOrders({
-      network: "testnet"
+      network: config.network
     });
     let _orders = [];
     if (res) {
@@ -46,8 +47,8 @@ function App() {
   useEffect(() => {
     (async () => {
       await Moralis.start({
-        appId: process.env.REACT_APP_MORALIS_TESTNET_APP_ID,
-        serverUrl: process.env.REACT_APP_MORALIS_TESTNET_SERVER_URL
+        appId: config.appId,
+        serverUrl: config.serverUrl
       })
     })()
   }, [])
@@ -82,7 +83,7 @@ function App() {
     let hash = params.id;
     let orderNFT = orders.find(order => order.hash == hash);
     let buyOrder: BuyOrderInterface = {
-        network: 'testnet',
+        network: config.network,
         hash: orderNFT.hash,
         tokenAddress: orderNFT.asset.tokenAddress,
         tokenId: orderNFT.asset.tokenId,
@@ -148,7 +149,7 @@ function App() {
     setOrders(_orders);
     let _buyOrders = _orders.map(_order => {
       let buyOrder: BuyOrderInterface = {
-        network: 'testnet',
+        network: config.network,
         hash: _order.hash,
         tokenAddress: _order.asset.tokenAddress,
         tokenId: _order.asset.tokenId,

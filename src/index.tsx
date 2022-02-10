@@ -4,11 +4,12 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { MoralisProvider } from "react-moralis";
+import config from './config/config';
 ReactDOM.render(
   <React.StrictMode>
     <MoralisProvider
-      serverUrl={process.env.REACT_APP_MORALIS_TESTNET_SERVER_URL || ''}
-      appId={process.env.REACT_APP_MORALIS_TESTNET_APP_ID || ''}
+      serverUrl={config.serverUrl}
+      appId={config.appId}
     >
       <App />
     </MoralisProvider>
