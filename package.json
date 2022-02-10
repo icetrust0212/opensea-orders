@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@mui/lab": "^5.0.0-alpha.68",
     "@mui/material": "^5.4.1",
     "@mui/x-data-grid": "^5.5.0",
     "@testing-library/jest-dom": "^5.11.4",
@@ -14,6 +15,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "date-fns": "^2.28.0",
     "ethers": "^5.5.4",
     "moralis": "^1.2.7",
     "react": "^17.0.2",
