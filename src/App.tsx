@@ -6,6 +6,9 @@ import { Button } from '@mui/material';
 import { GridCellEditCommitParams, MuiBaseEvent, MuiEvent } from '@mui/x-data-grid';
 import { BuyOrderInterface } from './interfaces/buyOrderInterface';
 import config from './config/config';
+import {ethers} from 'ethers';
+
+const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 function App() {
 
   const {
@@ -69,8 +72,8 @@ function App() {
 	}, [isAuthenticated]);
 
   const getPaymentToken = (tokenAddress: string): string => {
-    if (tokenAddress == "0x0000000000000000000000000000000000000000") {
-      return '0xc778417e063141139fce010982780140aa0cd5ab';
+    if (tokenAddress == ethers.constants.AddressZero) {
+      return WETH;
     } else {
       return tokenAddress;
     }
@@ -190,7 +193,7 @@ function App() {
       <div>
 					{isAuthenticated ? (
 						<div>
-							<div>{web3Account}</div>
+							<div style={{color: 'white'}}>{web3Account}</div>
 							<Button
 								onClick={() => logout()}
 							>

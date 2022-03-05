@@ -41,3 +41,12 @@
     align-items: center;
     padding: 8px 16px;
 }
+.MuiTablePagination-displayedRows  {
+    color: white !important;
+}
+.MuiTablePagination-root {
+    color: white !important
+}
+.MuiIconButton-root.Mui-disabled {
+    color: rgb(177, 174, 174) !important;
+}
