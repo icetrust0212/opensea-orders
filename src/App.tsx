@@ -7,70 +7,21 @@ import { GridCellEditCommitParams, MuiBaseEvent, MuiEvent } from '@mui/x-data-gr
 import { BuyOrderInterface } from './interfaces/buyOrderInterface';
 import config from './config/config';
 import {ethers} from 'ethers';
+import { OpenSeaPort, Network } from 'opensea-js';
+import Web3 from 'web3';
+import useProvider from './hook/useProvider';
+import useSeaport from './hook/useSeaport';
+import useOrders from './hook/useOrders';
+import { WyvernSchemaName } from "opensea-js/lib/types";
 
 const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 function App() {
+  const [provider, web3, account, connectWeb3, disconnectWeb3] = useProvider();
+  const seaport = useSeaport();
+  const [orders, setOrders] = useOrders(seaport);
 
-  const {
-		Moralis,
-		user,
-		logout,
-		authenticate,
-		enableWeb3,
-		isInitialized,
-		isAuthenticated,
-		isWeb3Enabled,
-	} = useMoralis();
-
-  const [orders, setOrders] = useState<any[]>([]);
   const [buyOrders, setBuyOrders] = useState<BuyOrderInterface[]>([]);
-  const web3Account = useMemo(
-		() => isAuthenticated && user?.get("accounts")[0],
-		[user, isAuthenticated],
-	);
-
-  const getOrders = async () => {
-    const res = await Moralis.Plugins.opensea.getOrders({
-      network: config.network
-    });
-    let _orders = [];
-    if (res) {
-      let values = res.orders || [];
-      _orders = values.map((value: any) => {
-        return {
-          ...value,
-          ...value.asset,
-          expirationTime: ''
-        }
-      });
-    }
-    return _orders;
-	};
-
-  useEffect(() => {
-    (async () => {
-      await Moralis.start({
-        appId: config.appId,
-        serverUrl: config.serverUrl
-      })
-    })()
-  }, [])
-
-  useEffect(() => {
-    (async () => {
-      if (!isInitialized) {
-        await Moralis.initPlugins();
-      }
-      let _orders = await getOrders();
-      setOrders(_orders);
-    })()
-  }, []);
-
-  useEffect(() => {
-    (async () => await enableWeb3())();
-		// eslint-disable-next-line
-	}, [isAuthenticated]);
-
+  
   const getPaymentToken = (tokenAddress: string): string => {
     if (tokenAddress == ethers.constants.AddressZero) {
       return WETH;
@@ -84,7 +35,7 @@ function App() {
     let expirationTime;
     
     let hash = params.id;
-    let orderNFT = orders.find(order => order.hash == hash);
+    let orderNFT = orders?.find(order => order.hash == hash);
     let buyOrder: BuyOrderInterface = {
         network: config.network,
         hash: orderNFT.hash,
@@ -93,7 +44,7 @@ function App() {
         expirationTime: orderNFT.expirationTime,
         tokenType: orderNFT.asset.assetContract.schemaName,
         paymentTokenAddress: getPaymentToken(orderNFT.paymentToken),
-        userAddress: web3Account,
+        userAddress: account,
         amount: orderNFT.amount
     };
     let updatedValue = params.value as number || 0;
@@ -159,8 +110,8 @@ function App() {
         expirationTime: _order.expirationTime,
         tokenType: _order.asset.assetContract.schemaName,
         paymentTokenAddress: getPaymentToken(_order.paymentToken),
-        userAddress: web3Account,
-        amount: _order.amount
+        userAddress: account,
+        amount: _order.amount,
       };
       buyOrder[field as 'expirationTime' | 'amount'] = value;
       return buyOrder;
@@ -168,10 +119,33 @@ function App() {
     setBuyOrders(_buyOrders);
   }
 
+  const getTokenType = (tokenType: string): WyvernSchemaName => {
+    let schemaName = WyvernSchemaName.ERC721;
+
+    switch (tokenType) {
+      case 'ERC1155':
+        schemaName = WyvernSchemaName.ERC1155;
+        break;
+      default:
+        schemaName = WyvernSchemaName.ERC721;
+        break;
+    }
+    return schemaName;
+  }
+
   const handleSubmit = async (event: any) => {
     console.log('buyOrders: ', buyOrders);
-    for (let buyOrder of buyOrders) {
-      await Moralis.Plugins.opensea.createBuyOrder(buyOrder);
+    for (let order of buyOrders) {
+      const offer = await seaport.createBuyOrder({
+        asset: {
+          tokenId: order.tokenId,
+          tokenAddress: order.tokenAddress,
+          schemaName: getTokenType(order.tokenType) // WyvernSchemaName. If omitted, defaults to 'ERC721'. Other options include 'ERC20' and 'ERC1155'
+        },
+        accountAddress: account,
+        // Value of the offer, in units of the payment token (or wrapped ETH if none is specified):
+        startAmount: order.amount,
+      })
     }
     console.log("Create Buy Order Successful");
   }
@@ -191,17 +165,12 @@ function App() {
   return (
     <div className="App">
       <div>
-					{isAuthenticated ? (
+					{account ? (
 						<div>
-							<div style={{color: 'white'}}>{web3Account}</div>
-							<Button
-								onClick={() => logout()}
-							>
-								Logout
-							</Button>
+							<div style={{color: 'white'}}>{account}</div>
 						</div>
 					) : (
-						<Button onClick={() => authenticate()}>
+						<Button onClick={() => connectWeb3()}>
 							Connect to Metamask
 						</Button>
 					)}

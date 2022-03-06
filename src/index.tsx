@@ -7,12 +7,12 @@ import { MoralisProvider } from "react-moralis";
 import config from './config/config';
 ReactDOM.render(
   <React.StrictMode>
-    <MoralisProvider
+    {/* <MoralisProvider
       serverUrl={config.serverUrl}
       appId={config.appId}
-    >
+    > */}
       <App />
-    </MoralisProvider>
+    {/* </MoralisProvider> */}
   </React.StrictMode>,
   document.getElementById('root')
 );

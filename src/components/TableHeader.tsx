@@ -1,16 +1,26 @@
-import { GridColDef, GridValueSetterParams } from "@mui/x-data-grid"
+import { GridColDef, GridRowParams, GridValueSetterParams } from "@mui/x-data-grid"
 import { format } from "date-fns";
-import { ethers, utils } from "moralis/node_modules/ethers";
+import { BigNumber } from "@ethersproject/bignumber";
+import { formatEther } from "@ethersproject/units";
 
 function setexpirationTime(params: GridValueSetterParams, value: number) {
   const date = new Date(new Date().getTime() + value);
   return { ...params.row, expirationTime: date };
 }
+
+const handeImageClick = (path: string) => {
+  console.log('opensealink: ', path)
+  window.open(
+    path,
+    '_blank' // <- This is what makes it open in a new window.
+  );
+}
+
 export const getTableColumns = (handleClickTime: (row: any, field: string, value: number) => void, 
   handleClickAll: (row:any, filed: string) => void
 ) => {
   const columns: GridColDef[] = [
-    {field: 'imageUrlThumbnail', headerClassName: 'text-cell-header', headerName: 'Image', width: 90, renderCell: (params) =><img className="row-image" src={params.value ? (params.value) : ''} />,},
+    {field: 'imageUrlThumbnail', headerClassName: 'text-cell-header', headerName: 'Image', width: 90, renderCell: (params) =><img onClick={() => handeImageClick(params.row.openseaLink)} className="row-image" src={params.value ? (params.value) : ''} />,},
     { field: 'tokenId', headerName: 'ID', width: 120, renderCell: (params) => params?.value, headerClassName: 'text-cell-header'},
     {
       field: 'rank',
@@ -24,7 +34,7 @@ export const getTableColumns = (handleClickTime: (row: any, field: string, value
       headerName: 'OS Price',
       width: 120,
       headerClassName: 'text-cell-header',
-      renderCell: (params) => <span>{params.value ? utils.formatEther(params.value): '--'}</span>
+      renderCell: (params) => <span>{params.value ? formatEther(params.value.toString()): '--'}</span>
     },
     {
       field: 'amount',
