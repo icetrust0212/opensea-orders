@@ -5,7 +5,7 @@ declare let window: any;
 const useProvider = (): [any, any, any, any, any] => {
   
   const [web3, setWeb3] = useState<Web3>();
-  const [provider, setProvider] = useState();
+  const [provider, setProvider] = useState<any>();
   const [account ,setAccount] = useState();
 
   const connectWeb3 = async () => {

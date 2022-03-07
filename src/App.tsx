@@ -136,7 +136,7 @@ function App() {
   const handleSubmit = async (event: any) => {
     console.log('buyOrders: ', buyOrders);
     for (let order of buyOrders) {
-      const offer = await seaport.createBuyOrder({
+      const offer = await seaport?.createBuyOrder({
         asset: {
           tokenId: order.tokenId,
           tokenAddress: order.tokenAddress,
